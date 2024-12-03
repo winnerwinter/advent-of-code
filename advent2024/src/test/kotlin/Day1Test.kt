@@ -3,9 +3,7 @@ import org.junit.jupiter.api.Test
 class Day1Test {
 
     private fun parseInput(fileName: String) =
-        requireNotNull(this::class.java.getResourceAsStream(fileName)) { "Input not found." }
-            .reader()
-            .readLines()
+        Utils.readLines(fileName)
             .map {
                 val (first, second) = it.split("   ")
                 first.toInt() to second.toInt()
