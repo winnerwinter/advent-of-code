@@ -9,6 +9,18 @@ fun part1IsReportSafe(report: Report): Boolean {
     return saneOrder && inSafeRange
 }
 
+fun part2WithDampen(report: Report): Boolean {
+    val subReports = List(report.size) { index ->
+        when (index) {
+            0 -> report.subList(1, report.size)
+            report.size - 1 -> report.subList(0, report.size - 1)
+            else -> report.subList(0, index) + report.subList(index + 1, report.size)
+        }
+    }
+
+    return part1IsReportSafe(report) || subReports.any { part1IsReportSafe(it) }
+}
+
 infix fun Int.isSafeRangeWith(other: Int): Boolean =
     abs(this - other) in 1..3
 
