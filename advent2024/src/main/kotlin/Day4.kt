@@ -45,33 +45,31 @@ private data class WordSearch(
         }.all { it }
 
     fun part1FindWordCount(word: String): Int =
-        grid
-            .mapIndexed{ rowIdx, row ->
-                List(row.size) { colIdx ->
-                    listOf(
-                        word.checkDirection(Direction.UP, rowIdx to colIdx),
-                        word.checkDirection(Direction.UP_RIGHT, rowIdx to colIdx),
-                        word.checkDirection(Direction.RIGHT, rowIdx to colIdx),
-                        word.checkDirection(Direction.DOWN_RIGHT, rowIdx to colIdx),
-                        word.checkDirection(Direction.DOWN, rowIdx to colIdx),
-                        word.checkDirection(Direction.DOWN_LEFT, rowIdx to colIdx),
-                        word.checkDirection(Direction.LEFT, rowIdx to colIdx),
-                        word.checkDirection(Direction.UP_LEFT, rowIdx to colIdx)
-                    )
-                        .sumOf { if (it) 1 as Int else 0 }
-                }
+        List(count) { rowIdx ->
+            List(count) { colIdx ->
+                listOf(
+                    word.checkDirection(Direction.UP, rowIdx to colIdx),
+                    word.checkDirection(Direction.UP_RIGHT, rowIdx to colIdx),
+                    word.checkDirection(Direction.RIGHT, rowIdx to colIdx),
+                    word.checkDirection(Direction.DOWN_RIGHT, rowIdx to colIdx),
+                    word.checkDirection(Direction.DOWN, rowIdx to colIdx),
+                    word.checkDirection(Direction.DOWN_LEFT, rowIdx to colIdx),
+                    word.checkDirection(Direction.LEFT, rowIdx to colIdx),
+                    word.checkDirection(Direction.UP_LEFT, rowIdx to colIdx)
+                )
+                    .sumOf { if (it) 1 as Int else 0 }
             }
+        }
             .sumOf { it.sumOf { it } }
 
     fun part2FindCrossCount(word: String) =
-        grid
-            .mapIndexed{ rowIdx, row ->
-                List(row.size) { colIdx ->
-                    val downRight = word.checkDirection(Direction.DOWN_RIGHT, rowIdx to colIdx)
-                            || word.reversed().checkDirection(Direction.DOWN_RIGHT, rowIdx to colIdx)
-                    val upRight = word.checkDirection(Direction.UP_RIGHT, rowIdx + word.length - 1 to colIdx)
-                            || word.reversed().checkDirection(Direction.UP_RIGHT, rowIdx + word.length - 1 to colIdx)
-                    if (downRight && upRight) 1 as Int else 0 }
-                }
+        List(count) { rowIdx ->
+            List(count) { colIdx ->
+                val downRight = word.checkDirection(Direction.DOWN_RIGHT, rowIdx to colIdx)
+                        || word.reversed().checkDirection(Direction.DOWN_RIGHT, rowIdx to colIdx)
+                val upRight = word.checkDirection(Direction.UP_RIGHT, rowIdx + word.length - 1 to colIdx)
+                        || word.reversed().checkDirection(Direction.UP_RIGHT, rowIdx + word.length - 1 to colIdx)
+                if (downRight && upRight) 1 as Int else 0 }
+        }
             .sumOf { it.sumOf { it } }
 }
