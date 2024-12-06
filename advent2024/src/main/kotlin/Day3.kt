@@ -1,4 +1,24 @@
-fun part1SearchMul(blob: String) =
+private fun parseInput(fileName: String): String =
+    Utils.readLines(fileName).joinToString("")
+
+fun main() {
+
+    // part 1
+    run {
+        val string = parseInput("day3.txt")
+        val ans = part1SearchMul(string)
+        println(ans)
+    }
+
+    // part 2
+    run {
+        val string = parseInput("day3.txt")
+        val ans = part2DoDont(string)
+        println(ans)
+    }
+}
+
+private fun part1SearchMul(blob: String) =
     "mul\\(\\d+,\\d+\\)"
         .toRegex()
         .findAll(blob)
@@ -10,7 +30,7 @@ fun part1SearchMul(blob: String) =
             acc + a * b
         }
 
-fun part2DoDont(blob: String): Int {
+private fun part2DoDont(blob: String): Int {
     var multOn = true
     return "mul\\(\\d+,\\d+\\)|do\\(\\)|don't\\(\\)"
         .toRegex()
