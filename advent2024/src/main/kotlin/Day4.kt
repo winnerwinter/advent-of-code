@@ -1,3 +1,5 @@
+import java.util.concurrent.atomic.AtomicInteger
+
 private fun parseInput(fileName: String): WordSearch =
     Utils.readLines(fileName)
         .map { it.windowed(1, 1).map(String::single) }
@@ -37,39 +39,42 @@ private data class WordSearch(
     }
 
     fun String.checkDirection(direction: Direction, startingCoordinate: Pair<Int, Int>): Boolean =
-        this.mapIndexed { wordIdx, compare ->
+        this.foldIndexed(true) { wordIdx, acc, compare ->
             val (rowIdx, colIdx) = startingCoordinate
-            compare == grid
+            acc && compare == grid
                 .getOrNull(rowIdx + wordIdx * direction.vert)
                 ?.getOrNull(colIdx + wordIdx * direction.hort)
-        }.all { it }
+        }
 
     fun part1FindWordCount(word: String): Int =
-        List(count) { rowIdx ->
-            List(count) { colIdx ->
-                listOf(
-                    word.checkDirection(Direction.UP, rowIdx to colIdx),
-                    word.checkDirection(Direction.UP_RIGHT, rowIdx to colIdx),
-                    word.checkDirection(Direction.RIGHT, rowIdx to colIdx),
-                    word.checkDirection(Direction.DOWN_RIGHT, rowIdx to colIdx),
-                    word.checkDirection(Direction.DOWN, rowIdx to colIdx),
-                    word.checkDirection(Direction.DOWN_LEFT, rowIdx to colIdx),
-                    word.checkDirection(Direction.LEFT, rowIdx to colIdx),
-                    word.checkDirection(Direction.UP_LEFT, rowIdx to colIdx)
-                )
-                    .sumOf { if (it) 1 as Int else 0 }
+        AtomicInteger().apply {
+            List(count) { rowIdx ->
+                List(count) { colIdx ->
+                    listOf(
+                        word.checkDirection(Direction.UP, rowIdx to colIdx),
+                        word.checkDirection(Direction.UP_RIGHT, rowIdx to colIdx),
+                        word.checkDirection(Direction.RIGHT, rowIdx to colIdx),
+                        word.checkDirection(Direction.DOWN_RIGHT, rowIdx to colIdx),
+                        word.checkDirection(Direction.DOWN, rowIdx to colIdx),
+                        word.checkDirection(Direction.DOWN_LEFT, rowIdx to colIdx),
+                        word.checkDirection(Direction.LEFT, rowIdx to colIdx),
+                        word.checkDirection(Direction.UP_LEFT, rowIdx to colIdx)
+                    )
+                        .forEach { if (it) this.incrementAndGet() }
+                }
             }
-        }
-            .sumOf { it.sumOf { it } }
+        }.toInt()
 
-    fun part2FindCrossCount(word: String) =
-        List(count) { rowIdx ->
-            List(count) { colIdx ->
-                val downRight = word.checkDirection(Direction.DOWN_RIGHT, rowIdx to colIdx)
-                        || word.reversed().checkDirection(Direction.DOWN_RIGHT, rowIdx to colIdx)
-                val upRight = word.checkDirection(Direction.UP_RIGHT, rowIdx + word.length - 1 to colIdx)
-                        || word.reversed().checkDirection(Direction.UP_RIGHT, rowIdx + word.length - 1 to colIdx)
-                if (downRight && upRight) 1 as Int else 0 }
-        }
-            .sumOf { it.sumOf { it } }
+    fun part2FindCrossCount(word: String): Int =
+        AtomicInteger().apply {
+            List(count) { rowIdx ->
+                List(count) { colIdx ->
+                    val downRight = word.checkDirection(Direction.DOWN_RIGHT, rowIdx to colIdx)
+                            || word.reversed().checkDirection(Direction.DOWN_RIGHT, rowIdx to colIdx)
+                    val upRight = word.checkDirection(Direction.UP_RIGHT, rowIdx + word.length - 1 to colIdx)
+                            || word.reversed().checkDirection(Direction.UP_RIGHT, rowIdx + word.length - 1 to colIdx)
+                    if (downRight && upRight) this.incrementAndGet()
+                }
+            }
+        }.toInt()
 }
