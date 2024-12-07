@@ -38,9 +38,9 @@ private data class WordSearch(
         DOWN_LEFT(-1, 1)
     }
 
-    fun String.checkDirection(direction: Direction, startingCoordinate: Pair<Int, Int>): Boolean =
-        this.foldIndexed(true) { wordIdx, acc, compare ->
-            val (rowIdx, colIdx) = startingCoordinate
+    fun Pair<Int, Int>.checkMatch(word: String, direction: Direction): Boolean =
+        word.foldIndexed(true) { wordIdx, acc, compare ->
+            val (rowIdx, colIdx) = this
             acc && compare == grid
                 .getOrNull(rowIdx + wordIdx * direction.vert)
                 ?.getOrNull(colIdx + wordIdx * direction.hort)
@@ -48,32 +48,40 @@ private data class WordSearch(
 
     fun part1FindWordCount(word: String): Int =
         AtomicInteger().apply {
-            List(count) { rowIdx ->
-                List(count) { colIdx ->
-                    listOf(
-                        word.checkDirection(Direction.UP, rowIdx to colIdx),
-                        word.checkDirection(Direction.UP_RIGHT, rowIdx to colIdx),
-                        word.checkDirection(Direction.RIGHT, rowIdx to colIdx),
-                        word.checkDirection(Direction.DOWN_RIGHT, rowIdx to colIdx),
-                        word.checkDirection(Direction.DOWN, rowIdx to colIdx),
-                        word.checkDirection(Direction.DOWN_LEFT, rowIdx to colIdx),
-                        word.checkDirection(Direction.LEFT, rowIdx to colIdx),
-                        word.checkDirection(Direction.UP_LEFT, rowIdx to colIdx)
-                    )
-                        .forEach { if (it) this.incrementAndGet() }
+            for (rowIdx in 0..count) {
+                for (colIdx in 0..count) {
+                    with (rowIdx to colIdx) {
+                        listOf(
+                            checkMatch(word, Direction.UP),
+                            checkMatch(word, Direction.UP_RIGHT),
+                            checkMatch(word, Direction.RIGHT),
+                            checkMatch(word, Direction.DOWN_RIGHT),
+                            checkMatch(word, Direction.DOWN),
+                            checkMatch(word, Direction.DOWN_LEFT),
+                            checkMatch(word, Direction.LEFT),
+                            checkMatch(word, Direction.UP_LEFT)
+                        )
+                            .forEach { if (it) this@apply.incrementAndGet() }
+                    }
                 }
             }
         }.toInt()
 
     fun part2FindCrossCount(word: String): Int =
         AtomicInteger().apply {
-            List(count) { rowIdx ->
-                List(count) { colIdx ->
-                    val downRight = word.checkDirection(Direction.DOWN_RIGHT, rowIdx to colIdx)
-                            || word.reversed().checkDirection(Direction.DOWN_RIGHT, rowIdx to colIdx)
-                    val upRight = word.checkDirection(Direction.UP_RIGHT, rowIdx + word.length - 1 to colIdx)
-                            || word.reversed().checkDirection(Direction.UP_RIGHT, rowIdx + word.length - 1 to colIdx)
-                    if (downRight && upRight) this.incrementAndGet()
+            for (rowIdx in 0..count) {
+                for (colIdx in 0..count) {
+                    val startingDownRightCoordinate = rowIdx to colIdx
+                    val startingUpRightCoordinate = rowIdx + word.length - 1 to colIdx
+
+                    val downRightMatch = with (startingDownRightCoordinate) {
+                        checkMatch(word, Direction.DOWN_RIGHT) || checkMatch(word.reversed(), Direction.DOWN_RIGHT)
+                    }
+                    val upRightMatch = with (startingUpRightCoordinate) {
+                        checkMatch(word, Direction.UP_RIGHT) || checkMatch(word.reversed(), Direction.UP_RIGHT)
+                    }
+
+                    if (downRightMatch && upRightMatch) this.incrementAndGet()
                 }
             }
         }.toInt()
